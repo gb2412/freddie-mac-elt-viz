@@ -1,4 +1,4 @@
-# Freddie Mac Single Family LOan-Level Dataset ELT and Visualization 
+# Freddie Mac Single-Family Loan-Level Dataset ELT and Visualization 
 ![Untitled design](https://github.com/user-attachments/assets/fe8cc2d7-b041-4d90-8180-9940f90cc32d)
 An end-to-end ELT pipeline to download, load into a database and transform  into key metrics [Freddie Mac Single Family Loan-Level Dataset](https://www.freddiemac.com/research/datasets/sf-loanlevel-dataset).
 #### Project Motivation
