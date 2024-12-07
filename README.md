@@ -8,9 +8,9 @@ An end-to-end ELT pipeline to download, load into a database and transform into 
 - [Overview](#overview)
 	- [🔥 Project Motivation](#-project-motivation)
 	- [🎯 Target Audience](#-target-audience)
-   	- [⚙️ Components](#-components)
-   	- [🔨 Tech Stack](#-tech-stack)
-- [🖌️ Dashboard](#-dashboard)
+   	- [🔩 Components](#-components)
+   	- [🔧 Tech Stack](#-tech-stack)
+- [📊 Dashboard](#-dashboard)
 - [💾 Data](#-data)
 	- [📆 Challenge 1: No fixed release calendar](#-challenge-1-no-fixed-release-calendar)
 	- [💿 Challenge 2: Data as zipped text files](#-challenge-2-data-as-zipped-text-files)
@@ -35,24 +35,24 @@ My background is in economics and finance. I'm fascinated by quantitative risk m
 ### 🎯 Target Audience
 This project will benefit anyone who needs to interact with the dataset and is looking for a programmatic way to do so. The pipeline can be used by credit model developers or academic researchers, while the dashboard provides insights for mortgage industry practitioners.
 
-### ⚙️ Components
-The project has two main components: an [ELT pipeline](#elt-pipeline) and a [dashboard](#dashboard). The ELT pipeline extracts mortgage origination and monthly performance data from Freddie Mac's website, loads it into a data lake, and transforms it into metrics tables. The dashboard displays the time series of these key metrics, providing a comprehensive, up-to-date view of the size and performance of Freddie Mac's mortgage portfolio over time.
+### 🔩 Components
+The project has two main components: an [ELT pipeline](#-elt-pipeline) and a [dashboard](#-dashboard). The ELT pipeline extracts mortgage origination and monthly performance data from Freddie Mac's website, loads it into a data lake, and transforms it into metrics tables. The dashboard displays the time series of these key metrics, providing a comprehensive, up-to-date view of the size and performance of Freddie Mac's mortgage portfolio over time.
 
-### 🛠️ Tech Stack
-- [Astronomer](https://www.astronomer.io/)/Airflow for orchestration
-- [Starburst](https://www.starburst.io/)/Trino for querying
-- [AWS Glue]([https://aws.amazon.com/](https://aws.amazon.com/glue/) and [S3](https://aws.amazon.com/s3/) with Iceberg for storage
+### 🔧 Tech Stack
+- [Astronomer](https://www.astronomer.io/)-Airflow for orchestration
+- [Starburst](https://www.starburst.io/)-Trino for querying
+- [AWS Glue](https://aws.amazon.com/glue/) and [S3](https://aws.amazon.com/s3/) with Iceberg for storage
 - [PySpark](https://spark.apache.org/docs/latest/api/python/index.html) for loading
 - [dbt](https://www.getdbt.com/) for transformation
 - [Snowflake](https://www.snowflake.com/en/emea/) for metrics tables
 - [Docker](https://www.docker.com/) for containerization
 - [Grafana](https://grafana.com/grafana/dashboards/) for visualization
 
-## 🖌️ Dashboard
+## 📊 Dashboard
 
 I created the dashboard in **Grafana** in the name of simplicity and elegance. In one screen, you get a complete view of the size and performance of the portfolio, as well as their evolution over time. 
 
-[link to dashboard](https://giuliobellini.grafana.net/public-dashboards/efa53b6b222843ec84671f37d879c02c).
+[link to dashboard](https://giuliobellini.grafana.net/public-dashboards/efa53b6b222843ec84671f37d879c02c)
 
 ![demo](https://github.com/user-attachments/assets/5c20cbe7-2891-4d24-8e67-7264fe1ef32b)
 
@@ -72,23 +72,25 @@ Although these data are an excellent resource for credit risk modelling and anal
 2. There are no APIs or database to query, the only way to access the data is to log on to the [website](https://freddiemac.embs.com/FLoan/secure/login.php?pagename=downloadQ) and download it as zipped folders of text files. Each year quarter (e.g. 2015Q1) corresponds to a folder containing a file of origination data for the mortgages purchased in that quarter and a file of performance data for the same mortgages. The performance file is updated with each data release.
 3. With each release, FM may publish corrections and updates to the historical data in the dataset without specifying which records have been changed.
 
-In this project, I addressed each of these challenges to make the interaction with the dataset more seamless. Here is how...
+In this project, I addressed each of these challenges to make the interaction with the dataset more seamless. 
+
+Here is how...
 
 ### 📆 Challenge 1: No fixed release calendar
 My DAG runs daily and checks if a new quarter of data has been released. If so, the DAG continues, otherwise all downstream loading and transformation processes are skipped. This ensures that the production tables and dashboard are always up to date, with a maximum delay of 24 hours.
 ### 💿 Challenge 2: Data as zipped text files
-The glue_iceberg_load.py script extracts and loads the data programmatically. It accesses the FM website, logs in with username and password, accepts the terms and conditions and downloads the data from the download page. The data is downloaded one quarter at a time, held in memory, unzipped, converted into a list and finally into a [Spark](https://spark.apache.org/) dataframe to be appended to their respective Iceberg table. The script is executed by submitting an AWS Glue job via `boto3`. See [below](#el-tasks) for more details on the EL process.
+The glue_iceberg_load.py script extracts and loads the data programmatically. It accesses the FM website, logs in with username and password, accepts the terms and conditions and downloads the data from the download page. The data is downloaded one quarter at a time, held in memory, unzipped, converted into a list and finally into a [Spark](https://spark.apache.org/) dataframe to be appended to their respective Iceberg table. The script is executed by submitting an AWS Glue job via `boto3`. See [below](#-el-tasks) for more details on the EL process.
 ### 🔄 Challenge 3: Corrections and updates
 There is no information about which records have been changed, and the data format makes it impossible to implement change data capture without downloading the new data. For these reasons, each time a new quarter is released, a backfill DAG is triggered to extract, load and transform the data in its current version, replacing the previous one. This approach ensures that the data in the database reflects any change/correction to the source, although it is time-consuming and computationally expensive. Users have the option to backfill only the years they are interested in updating.
 
  ## ⛽ ELT pipeline
-The bulk of this project is the ELT pipeline, developed as an **Airflow DAG**. The DAG can be decomposed into three main components or groups of tasks: the [pre-ELT](#pre-elt-tasks), the [EL](#el-tasks) and the [T](#t-tasks) tasks.
+The bulk of this project is the ELT pipeline, developed as an **Airflow DAG**. The DAG can be decomposed into three main components or groups of tasks: the [pre-ELT](#-pre-elt-tasks), the [EL](#-el-tasks) and the [T](#-t-tasks) tasks.
 
 ### 👉 pre-ELT tasks
 ![Screenshot 2024-12-05 150932](https://github.com/user-attachments/assets/20cd5395-4474-4588-bfce-1030ecfcfc78)
 
 
-As introduced by [Challenge 1](#challenge-1:-no-fixed-release-calendar) above, FM does not publish new data according to a predefined schedule. The initial DAG tasks run every day and are designed to assess whether new data has been released and whether to start the backfilling process or skip all downstream tasks. 
+As introduced by [Challenge 1](#-challenge-1-no-fixed-release-calendar) above, FM does not publish new data according to a predefined schedule. The initial DAG tasks run every day and are designed to assess whether new data has been released and whether to start the backfilling process or skip all downstream tasks. 
 1. `start_execution` is a `DummyOperator` that marks the start of the DAG.
 2. `get_year_quarter_release` logs into Freddie Mac's dataset website and extracts the most recent available year-quarter.
 3. `create_prod_tables` is a `TaskGroup` that creates the production tables if they do not already exist in the database, thus preventing downstream tasks from breaking.
@@ -102,7 +104,7 @@ As introduced by [Challenge 1](#challenge-1:-no-fixed-release-calendar) above, F
 ![Screenshot 2024-12-05 151022](https://github.com/user-attachments/assets/a4975f77-091b-4c8d-9f74-3197497485cf)
 
 
-When new data is released, the backfill process is invoked as described in [Challenge 3](#challenge-3:-corrections-and-updates). 
+When new data is released, the backfill process is invoked as described in [Challenge 3](#-challenge-3-corrections-and-updates). 
 1. `get_years_quarters_list` defines the list of all years and quarters available for download. 
 2. `create_clear_audit_origination` and `create_clear_audit_performance` `TaskGroup`s create and clear the audit tables to implement the **WAP** (write-audit-publish) process described below.
 
