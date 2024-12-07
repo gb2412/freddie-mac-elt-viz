@@ -2,7 +2,7 @@
 ![Untitled_design-removebg-preview](https://github.com/user-attachments/assets/d2f139fc-7f37-4f7b-9f76-c42e931e91bf)
 An end-to-end ELT pipeline to download, load into a database and transform into key metrics [Freddie Mac Single Family Loan-Level Dataset](https://www.freddiemac.com/research/datasets/sf-loanlevel-dataset).
 
-#### :copyright: Author: [Giulio Bellini](https://github.com/gb2412)
+#### ©️ Author: [Giulio Bellini](https://github.com/gb2412)
 
 ## Table of Contents
 - [Overview](#overview)
@@ -28,7 +28,9 @@ An end-to-end ELT pipeline to download, load into a database and transform into 
   	- [👉 Metrics](#-metrics)
 - [📈 Next Steps](#-next-steps)
 
+
 ## Overview
+
 ### 🔥 Project Motivation
 My background is in economics and finance. I'm fascinated by quantitative risk management, particularly credit risk modelling. Accurately predicting how many and which borrowers will default allows banks and lending companies to make important strategic decisions. Needless to say, machine learning is a natural fit in this space. But beyond fancy neural networks and tree-based models, analytics remains critical to risk management. In this project, which marks the end of the [Dataexpert](https://www.dataexpert.io) Analytics Engineering Bootcamp V1, I decided to focus on analytics and discover the complexity and beauty behind simple time series and percentages.
 
@@ -47,6 +49,7 @@ The project has two main components: an [ELT pipeline](#-elt-pipeline) and a [da
 - [Snowflake](https://www.snowflake.com/en/emea/) for metrics tables
 - [Docker](https://www.docker.com/) for containerization
 - [Grafana](https://grafana.com/grafana/dashboards/) for visualization
+
 
 ## 📊 Dashboard
 
@@ -78,12 +81,15 @@ Here is how...
 
 ### 📆 Challenge 1: No fixed release calendar
 My DAG runs daily and checks if a new quarter of data has been released. If so, the DAG continues, otherwise all downstream loading and transformation processes are skipped. This ensures that the production tables and dashboard are always up to date, with a maximum delay of 24 hours.
+
 ### 💿 Challenge 2: Data as zipped text files
 The glue_iceberg_load.py script extracts and loads the data programmatically. It accesses the FM website, logs in with username and password, accepts the terms and conditions and downloads the data from the download page. The data is downloaded one quarter at a time, held in memory, unzipped, converted into a list and finally into a [Spark](https://spark.apache.org/) dataframe to be appended to their respective Iceberg table. The script is executed by submitting an AWS Glue job via `boto3`. See [below](#-el-tasks) for more details on the EL process.
+
 ### 🔄 Challenge 3: Corrections and updates
 There is no information about which records have been changed, and the data format makes it impossible to implement change data capture without downloading the new data. For these reasons, each time a new quarter is released, a backfill DAG is triggered to extract, load and transform the data in its current version, replacing the previous one. This approach ensures that the data in the database reflects any change/correction to the source, although it is time-consuming and computationally expensive. Users have the option to backfill only the years they are interested in updating.
 
- ## ⛽ ELT pipeline
+
+## ⛽ ELT pipeline
 The bulk of this project is the ELT pipeline, developed as an **Airflow DAG**. The DAG can be decomposed into three main components or groups of tasks: the [pre-ELT](#-pre-elt-tasks), the [EL](#-el-tasks) and the [T](#-t-tasks) tasks.
 
 ### 👉 pre-ELT tasks
@@ -131,6 +137,7 @@ These tests are designed to ensure that no records are removed from the producti
 #### Publish
 If the data quality tests are successful, the data is transferred from the audit tables to the production tables, replacing its previous version.
 
+
 ### 👉 T tasks
 
 ![Screenshot 2024-12-06 165358](https://github.com/user-attachments/assets/4560e738-bd09-4da8-a8cc-485bd45b38f2)
@@ -143,8 +150,14 @@ All transformations from the raw data tables to the metrics tables were implemen
 
 The metrics tables are then loaded into **Snowflake** to be easily accessible from **Grafana** to power the dashboard. Finally, the `end_execution` `DummyOperator` marks the end of the DAG.
 
+
 ## 🏭 Data Modelling
 My data model is based on two **source tables**: `raw_mortgage_origination` and `raw_mortgage_perfromance`, which contain the origination and performance data for all loans in the portfolio. They are the output of the **WAP-EL** process and can therefore be considered the single source of truth for all downstream tables. **Staging** and **intermediate** tables are built on top of them, leading to the calculation of the **aggregated metrics** shown in the dashboard.
+
+| Table                    | Rows                     | Description                                                   |
+| ------------------------ | ------------------------ | ------------------------------------------------------------- |
+| raw_mortgage_origination | 18355264 (18 million)   | Origination information on all Freddie Mac mortgages.         |
+| raw_mortgage_Performance | 774702357 (774 million) | Monthly performance information on all Freddie Mac mortgages. |
 
 ### 👉 Staging
 #### stg__raw_origination
