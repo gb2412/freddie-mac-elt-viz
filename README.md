@@ -6,10 +6,10 @@ An end-to-end ELT pipeline to download, load into a database and transform into 
 
 ## Table of Contents
 - [Overview](#overview)
-	- [:fire: Project Motivation](#project-motivation)
-	- [:dart: Target Audience](#target-audience)
-   	- [:gear: Components](#components)
-   	- [:hammer: Tech Stack](#tech-stack)
+	- [🔥 Project Motivation](#-project-motivation)
+	- [🎯 Target Audience](#-target-audience)
+   	- [⚙️ Components](#-components)
+   	- [🔨 Tech Stack](#-tech-stack)
 - [🖌️Dashboard](#dashboard)
 - [💾 Data](#data)
 	- [📆: Challenge 1: No fixed release calendar](#challenge-1:no-fixed-release-calendar)
