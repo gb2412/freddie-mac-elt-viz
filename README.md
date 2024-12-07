@@ -10,23 +10,23 @@ An end-to-end ELT pipeline to download, load into a database and transform into 
 	- [🎯 Target Audience](#-target-audience)
    	- [⚙️ Components](#-components)
    	- [🔨 Tech Stack](#-tech-stack)
-- [🖌️Dashboard](#dashboard)
-- [💾 Data](#data)
-	- [📆: Challenge 1: No fixed release calendar](#challenge-1:no-fixed-release-calendar)
-	- [💿: Challenge 2: Data as zipped text files](#challenge-2:data-as-zipped-text-files)
-	- [🔄: Challenge 3: Corrections and updates](#challenge-3:corrections-and-updates)
-- [⛽ ELT pipeline](#elt-piepline)
-  	- [👉 pre-ELT tasks](#pre-elt-tasks)
-  	- [👉 EL tasks](#el-tasks)
+- [🖌️ Dashboard](#-dashboard)
+- [💾 Data](#-data)
+	- [📆 Challenge 1: No fixed release calendar](#-challenge-1-no-fixed-release-calendar)
+	- [💿 Challenge 2: Data as zipped text files](#-challenge-2-data-as-zipped-text-files)
+	- [🔄 Challenge 3: Corrections and updates](#-challenge-3-corrections-and-updates)
+- [⛽ ELT pipeline](#-elt-pipeline)
+  	- [👉 pre-ELT tasks](#-pre-elt-tasks)
+  	- [👉 EL tasks](#-el-tasks)
   	  	- [Write](#write)
   	  	- [Audit](#audit)
   	  	- [Publish](#publish)
-  	- [👉 T tasks](#t-tasks)
--[🏭 Data Modelling](#data-modelling)
-	- [👉 Staging](#staging)
- 	- [👉 Intermediate](#intermediate)
-  	- [👉 Metrics](#metrics)
-- [📈 Next Steps](#next-steps)
+  	- [👉 T tasks](#-t-tasks)
+- [🏭 Data Modelling](#-data-modelling)
+	- [👉 Staging](#-staging)
+ 	- [👉 Intermediate](#-intermediate)
+  	- [👉 Metrics](#-metrics)
+- [📈 Next Steps](#-next-steps)
 
 ## Overview
 ### 🔥 Project Motivation
@@ -48,7 +48,7 @@ The project has two main components: an [ELT pipeline](#elt-pipeline) and a [das
 - [Docker](https://www.docker.com/) for containerization
 - [Grafana](https://grafana.com/grafana/dashboards/) for visualization
 
-## 🖌️: Dashboard
+## 🖌️ Dashboard
 
 I created the dashboard in **Grafana** in the name of simplicity and elegance. In one screen, you get a complete view of the size and performance of the portfolio, as well as their evolution over time. 
 
@@ -74,11 +74,11 @@ Although these data are an excellent resource for credit risk modelling and anal
 
 In this project, I addressed each of these challenges to make the interaction with the dataset more seamless. Here is how...
 
-##### 📆: Challenge 1: No fixed release calendar
+### 📆 Challenge 1: No fixed release calendar
 My DAG runs daily and checks if a new quarter of data has been released. If so, the DAG continues, otherwise all downstream loading and transformation processes are skipped. This ensures that the production tables and dashboard are always up to date, with a maximum delay of 24 hours.
-##### 💿: Challenge 2: Data as zipped text files
+### 💿 Challenge 2: Data as zipped text files
 The glue_iceberg_load.py script extracts and loads the data programmatically. It accesses the FM website, logs in with username and password, accepts the terms and conditions and downloads the data from the download page. The data is downloaded one quarter at a time, held in memory, unzipped, converted into a list and finally into a [Spark](https://spark.apache.org/) dataframe to be appended to their respective Iceberg table. The script is executed by submitting an AWS Glue job via `boto3`. See [below](#el-tasks) for more details on the EL process.
-##### 🔄: Challenge 3: Corrections and updates
+### 🔄 Challenge 3: Corrections and updates
 There is no information about which records have been changed, and the data format makes it impossible to implement change data capture without downloading the new data. For these reasons, each time a new quarter is released, a backfill DAG is triggered to extract, load and transform the data in its current version, replacing the previous one. This approach ensures that the data in the database reflects any change/correction to the source, although it is time-consuming and computationally expensive. Users have the option to backfill only the years they are interested in updating.
 
  ## ⛽ ELT pipeline
