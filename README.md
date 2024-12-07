@@ -6,7 +6,7 @@ My background is in economics and finance. I'm fascinated by quantitative risk m
 #### Target Audience
 This project will benefit anyone who needs to interact with the dataset and is looking for a programmatic way to do so. The pipeline can be used by credit model developers or academic researchers, while the dashboard provides insights for mortgage industry practitioners.
 #### Components
-The project has two main components: an [ELT pipeline](###-elt-pipeline) and a [dashboard](###dashboard). The ELT pipeline extracts mortgage origination and monthly performance data from Freddie Mac's website, loads it into a data lake, and transforms it into metrics tables. The dashboard displays the time series of these key metrics, providing a comprehensive, up-to-date view of the size and performance of Freddie Mac's mortgage portfolio over time.
+The project has two main components: an [ELT pipeline](#elt-pipeline) and a [dashboard](#dashboard). The ELT pipeline extracts mortgage origination and monthly performance data from Freddie Mac's website, loads it into a data lake, and transforms it into metrics tables. The dashboard displays the time series of these key metrics, providing a comprehensive, up-to-date view of the size and performance of Freddie Mac's mortgage portfolio over time.
 #### Tech Stack
 - Airflow for orchestration
 - Starburst/Trino for querying
