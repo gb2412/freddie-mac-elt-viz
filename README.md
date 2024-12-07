@@ -6,7 +6,7 @@ My background is in economics and finance. I'm fascinated by quantitative risk m
 #### Target Audience
 This project will benefit anyone who needs to interact with the dataset and is looking for a programmatic way to do so. The pipeline can be used by credit model developers or academic researchers, while the dashboard provides insights for mortgage industry practitioners.
 #### Components
-The project has two main components: an [ELT pipeline](###elt-pipeline) and a dashboard. The ELT pipeline extracts mortgage origination and monthly performance data from Freddie Mac's website, loads it into a data lake, and transforms it into metrics tables. The dashboard displays the time series of these key metrics, providing a comprehensive, up-to-date view of the size and performance of Freddie Mac's mortgage portfolio over time.
+The project has two main components: an [ELT pipeline](###elt-pipeline) and a [dashboard](###dashboard). The ELT pipeline extracts mortgage origination and monthly performance data from Freddie Mac's website, loads it into a data lake, and transforms it into metrics tables. The dashboard displays the time series of these key metrics, providing a comprehensive, up-to-date view of the size and performance of Freddie Mac's mortgage portfolio over time.
 #### Tech Stack
 - Airflow for orchestration
 - Starburst/Trino for querying
@@ -45,7 +45,8 @@ My DAG runs daily and checks if a new quarter of data has been released. If so, 
 The glue_iceberg_load.py script extracts and loads the data programmatically. It accesses the FM website, logs in with username and password, accepts the terms and conditions and downloads the data from the download page. The data is downloaded one quarter at a time, held in memory, unzipped, converted into a list and finally into a Spark dataframe to be appended to their respective Iceberg table. The script is executed by submitting an AWS Glue job via boto3. See below for more details on the EL process.
 ##### Challenge 3: Corrections e updates
 There is no information about which records have been changed, and the format of the data makes it impossible to implement change data capture without downloading all the data. For these reasons, each time a new quarter is released, a backfill DAG is triggered to extract, load and transform the data in its current version, replacing the previous one. This approach ensures that the data in the database reflects any change/correction to the source, although it is time consuming and computationally expensive. Users have the option to backfill only the years they are interested in updating.
-### ELT pipeline
+
+ ### ELT pipeline
 TThe bulk of this project is the ELT pipeline, developed as an Airflow DAG. The DAG can be decomposed into three main components or groups of tasks: the pre-ELT, the EL and the T tasks.
 
 #### pre-ELT tasks
