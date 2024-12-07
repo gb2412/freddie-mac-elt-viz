@@ -2,17 +2,43 @@
 ![Untitled_design-removebg-preview](https://github.com/user-attachments/assets/d2f139fc-7f37-4f7b-9f76-c42e931e91bf)
 An end-to-end ELT pipeline to download, load into a database and transform into key metrics [Freddie Mac Single Family Loan-Level Dataset](https://www.freddiemac.com/research/datasets/sf-loanlevel-dataset).
 
-Author: [Giulio Bellini](https://github.com/gb2412)
+#### :copyright: Author: [Giulio Bellini](https://github.com/gb2412)
 
+## Table of Contents
+- [Overview](#overview)
+	- [:fire: Project Motivation](#project-motivation)
+	- [:dart: Target Audience](#target-audience)
+   	- [:gear: Components](#components)
+   	- [:hammer: Tech Stack](#tech-stack)
+- [🖌️Dashboard](#dashboard)
+- [💾 Data](#data)
+	- [📆: Challenge 1: No fixed release calendar](#challenge-1:no-fixed-release-calendar)
+	- [💿: Challenge 2: Data as zipped text files](#challenge-2:data-as-zipped-text-files)
+	- [🔄: Challenge 3: Corrections and updates](#challenge-3:corrections-and-updates)
+- [⛽ ELT pipeline](#elt-piepline)
+  	- [👉 pre-ELT tasks](#pre-elt-tasks)
+  	- [👉 EL tasks](#el-tasks)
+  	  	- [Write](#write)
+  	  	- [Audit](#audit)
+  	  	- [Publish](#publish)
+  	- [👉 T tasks](#t-tasks)
+-[🏭 Data Modelling](#data-modelling)
+	- [👉 Staging](#staging)
+ 	- [👉 Intermediate](#intermediate)
+  	- [👉 Metrics](#metrics)
+- [📈 Next Steps](#next-steps)
 
-#### Project Motivation
+## Overview
+### 🔥 Project Motivation
 My background is in economics and finance. I'm fascinated by quantitative risk management, particularly credit risk modelling. Accurately predicting how many and which borrowers will default allows banks and lending companies to make important strategic decisions. Needless to say, machine learning is a natural fit in this space. But beyond fancy neural networks and tree-based models, analytics remains critical to risk management. In this project, which marks the end of the [Dataexpert](https://www.dataexpert.io) Analytics Engineering Bootcamp V1, I decided to focus on analytics and discover the complexity and beauty behind simple time series and percentages.
-#### Target Audience
+
+### 🎯 Target Audience
 This project will benefit anyone who needs to interact with the dataset and is looking for a programmatic way to do so. The pipeline can be used by credit model developers or academic researchers, while the dashboard provides insights for mortgage industry practitioners.
-#### Components
+
+### ⚙️ Components
 The project has two main components: an [ELT pipeline](#elt-pipeline) and a [dashboard](#dashboard). The ELT pipeline extracts mortgage origination and monthly performance data from Freddie Mac's website, loads it into a data lake, and transforms it into metrics tables. The dashboard displays the time series of these key metrics, providing a comprehensive, up-to-date view of the size and performance of Freddie Mac's mortgage portfolio over time.
 
-#### Tech Stack
+### 🛠️ Tech Stack
 - [Astronomer](https://www.astronomer.io/)/Airflow for orchestration
 - [Starburst](https://www.starburst.io/)/Trino for querying
 - [AWS Glue]([https://aws.amazon.com/](https://aws.amazon.com/glue/) and [S3](https://aws.amazon.com/s3/) with Iceberg for storage
@@ -22,7 +48,7 @@ The project has two main components: an [ELT pipeline](#elt-pipeline) and a [das
 - [Docker](https://www.docker.com/) for containerization
 - [Grafana](https://grafana.com/grafana/dashboards/) for visualization
 
-### Dashboard
+## 🖌️: Dashboard
 
 I created the dashboard in **Grafana** in the name of simplicity and elegance. In one screen, you get a complete view of the size and performance of the portfolio, as well as their evolution over time. 
 
@@ -38,7 +64,7 @@ The time series in **Mortgage Portfolio Size** represent the total dollar amount
 Finally, **Portfolio Default Rate** shows the one-year default rate, i.e. the average probability of default of the mortgages in the portfolio over the 12 months following the observation date. As this rate is not known at the observation date, it has to be estimated. The graph shows the estimates of a machine learning model I developed, a Sparse Generalised Additive Model. For comparison, the actual default rate is also plotted to check the accuracy of the model. For the last 12 observation dates, the actual default rate is not available because the 12 months necessary to calculate it have not yet elapsed.
 
 
-### Data
+## 💾 Data
 [Freddie Mac's Single-Family Loan-Level Dataset](https://www.freddiemac.com/research/datasets/sf-loanlevel-dataset) is probably the largest free source of mortgage loan-level data available online. [Freddie Mac](https://www.freddiemac.com/) (FM) is a US government-sponsored enterprise. It buys mortgages from lenders and either holds them in its portfolio or packages the loans into mortgage-backed securities (MBS) that can be sold to investors. FM has published loan-level data (origination and monthly performance) for all mortgages it has purchased since 1999. The data is updated quarterly with a six-month lag.
 
 Although these data are an excellent resource for credit risk modelling and analytics, there are three main challenges that make them cumbersome to use:
@@ -48,17 +74,17 @@ Although these data are an excellent resource for credit risk modelling and anal
 
 In this project, I addressed each of these challenges to make the interaction with the dataset more seamless. Here is how...
 
-##### :calendar: Challenge 1: No fixed release calendar
+##### 📆: Challenge 1: No fixed release calendar
 My DAG runs daily and checks if a new quarter of data has been released. If so, the DAG continues, otherwise all downstream loading and transformation processes are skipped. This ensures that the production tables and dashboard are always up to date, with a maximum delay of 24 hours.
-##### :floppy_disk: Challenge 2: Data as zipped text files
+##### 💿: Challenge 2: Data as zipped text files
 The glue_iceberg_load.py script extracts and loads the data programmatically. It accesses the FM website, logs in with username and password, accepts the terms and conditions and downloads the data from the download page. The data is downloaded one quarter at a time, held in memory, unzipped, converted into a list and finally into a [Spark](https://spark.apache.org/) dataframe to be appended to their respective Iceberg table. The script is executed by submitting an AWS Glue job via `boto3`. See [below](#el-tasks) for more details on the EL process.
-##### :arrows_counterclockwise: Challenge 3: Corrections and updates
+##### 🔄: Challenge 3: Corrections and updates
 There is no information about which records have been changed, and the data format makes it impossible to implement change data capture without downloading the new data. For these reasons, each time a new quarter is released, a backfill DAG is triggered to extract, load and transform the data in its current version, replacing the previous one. This approach ensures that the data in the database reflects any change/correction to the source, although it is time-consuming and computationally expensive. Users have the option to backfill only the years they are interested in updating.
 
- ### ELT pipeline
+ ## ⛽ ELT pipeline
 The bulk of this project is the ELT pipeline, developed as an **Airflow DAG**. The DAG can be decomposed into three main components or groups of tasks: the [pre-ELT](#pre-elt-tasks), the [EL](#el-tasks) and the [T](#t-tasks) tasks.
 
-#### pre-ELT tasks
+### 👉 pre-ELT tasks
 ![Screenshot 2024-12-05 150932](https://github.com/user-attachments/assets/20cd5395-4474-4588-bfce-1030ecfcfc78)
 
 
@@ -71,7 +97,7 @@ As introduced by [Challenge 1](#challenge-1:-no-fixed-release-calendar) above, F
 6. `new_data_released` is a `ShortCircuitOperator` which, if `check_for_release` returns a falsy output, skips all downstream tasks.
 
 
-#### EL tasks
+### 👉 EL tasks
 
 ![Screenshot 2024-12-05 151022](https://github.com/user-attachments/assets/a4975f77-091b-4c8d-9f74-3197497485cf)
 
@@ -80,7 +106,7 @@ When new data is released, the backfill process is invoked as described in [Chal
 1. `get_years_quarters_list` defines the list of all years and quarters available for download. 
 2. `create_clear_audit_origination` and `create_clear_audit_performance` `TaskGroup`s create and clear the audit tables to implement the **WAP** (write-audit-publish) process described below.
 
-##### Write
+#### Write
 `load_to_audit_tables` is the actual EL task. It downloads the data and loads it into the Iceberg tables in AWS. It is a dynamic task: a separate glue job is initiated for each year. The glue job executes the `glue_iceberg_load.py` script and is submitted using the `create_and_run_glue_job` function from `glue_job_runner.py`, which is a wrapper around the `create_glue_job` function from `glue_job_submission.py`.
 In each job, the corresponding year's data is processed one quarter at a time, performing the following steps:
 1. downloaded with `requests`
@@ -93,16 +119,17 @@ In each job, the corresponding year's data is processed one quarter at a time, p
 
 Creating a separate glue job for each year allows the EL process to be repeated for specific years in the event of runtime errors or data quality fails. The data for each year is processed in batches of 1 million rows at a time to avoid memory overflow errors. The batch size can be tuned according to the resources available to achieve the optimum trade-off between cost and computation time.
 
-##### Audit
+#### Audit
 After loading the data into the audit tables, data quality checks are performed. 
 These ensure that:
 - there are NOT fewer unique loans in the audit origination table than in the production origination table.
 - for each observation date (`month_reporting`), there are NOT fewer unique loans in the audit performance table than in the production performance table.
 These tests are designed to ensure that no records are removed from the production tables when the pipeline is run. The tests are run on a per-year basis so that if they fail, only the corresponding Glue jobs can be re-run. Column-level quality tests are carried out in the transformation phase.
 
-##### Publish
+#### Publish
 If the data quality tests are successful, the data is transferred from the audit tables to the production tables, replacing its previous version.
-#### T tasks
+
+### 👉 T tasks
 
 ![Screenshot 2024-12-06 165358](https://github.com/user-attachments/assets/4560e738-bd09-4da8-a8cc-485bd45b38f2)
 
@@ -114,11 +141,11 @@ All transformations from the raw data tables to the metrics tables were implemen
 
 The metrics tables are then loaded into **Snowflake** to be easily accessible from **Grafana** to power the dashboard. Finally, the `end_execution` `DummyOperator` marks the end of the DAG.
 
-### Data Modelling
+## 🏭 Data Modelling
 My data model is based on two **source tables**: `raw_mortgage_origination` and `raw_mortgage_perfromance`, which contain the origination and performance data for all loans in the portfolio. They are the output of the **WAP-EL** process and can therefore be considered the single source of truth for all downstream tables. **Staging** and **intermediate** tables are built on top of them, leading to the calculation of the **aggregated metrics** shown in the dashboard.
 
-#### Staging
-##### stg__raw_origination
+### 👉 Staging
+#### stg__raw_origination
 A one-to-one mapping to the `raw_mortgage_origination` table with proper encoding for `NULL` values and enums. 
 
 | Column Name                | Data Type | Description                                                 |
@@ -169,7 +196,7 @@ Data tests:
 - `upb` is POSITIVE
 
 
-##### stg__raw_performance
+#### stg__raw_performance
 A one-to-one mapping to the `raw_mortgage_performance` table with proper encoding for `NULL` values and enums. 
 
 | Column Name                        | Data Type | Description                                                                         |
@@ -220,8 +247,8 @@ Data tests:
 - `credit_score` is POSITIVE
 - `upb` is POSITIVE
 
-#### Intermediate
-##### int__actual_defaults
+### 👉 Intermediate
+#### int__actual_defaults
 This table shows for each loan in each reference month its current default status (`curr_default`) and whether it will default at any time in the next 12 months (`ever_bad_one_year_default`). 
 The default definition used is:
 - 90+ days past due
@@ -243,7 +270,7 @@ Data-tests:
 To test the logic of the window function in `ever_bad_one_year_default`, a unit test has been implemented.
 
 
-##### int__ml_model_predictions
+#### int__ml_model_predictions
 This table shows the 12-month ever-bad probability of default for each loan at each reporting month. The probabilities are computed by a **machine learning** model trained on Freddie Mac data as part of a [separate project](https://github.com/gb2412/MSc_Thesis/blob/main/Interpretable%20Machine%20Learning%20in%20Credit%20Risk%20Modelling.pdf). The model is a **sparse Generalised Additive Model** with only 14 binary features. As the model is fully transparent, it was implemented directly in the SQL query by computing the features and hardcoding the coefficients. This is not standard practice for deploying ML models, but in this case it is enough for inference. 
 
 | Column Name     | Data Type | Description                                   |
@@ -257,8 +284,8 @@ Data tests:
 - `prediction` is a VALID PROBABILITY, in the range [0,1]
 
   
-#### Metrics
-##### m__principal
+### 👉 Metrics
+#### m__principal
 This table stores the total unpaid principal balance at each reporting month, i.e. the amount of debt outstanding on all mortgages in the portfolio at that time.
 
 | Column Name       | Data Type | Description                                                   |
@@ -271,7 +298,7 @@ Data tests:
 - `total_current_upb` is NOT `NULL` and POSITIVE
 
   
-##### m__loans_number
+#### m__loans_number
 This table shows the number of distinct loans in the portfolio for each reporting month.
 
 | Column Name     | Data Type | Description                                  |
@@ -284,7 +311,7 @@ Data tests:
 - `total_loans` is NOT `NULL` and POSITIVE
 
   
-##### m__interest
+#### m__interest
 This table shows the total interest paid each month on all mortgages. Interest due but not paid is not taken into account. If a delinquent borrower pays installments in arrears, it is assumed that he pays the oldest installment first.
 
 | Column Name            | Data Type | Description                                        |
@@ -296,7 +323,7 @@ Data tests:
 - `month_reporting` is NOT `NULL`
 - `total_monthly_interest` is NOT `NULL` and NON-NEGATIVE
 
-##### m__loss
+#### m__loss
 This table shows the losses incurred for each month. The losses are caused by the default of the mortgages and the subsequent foreclosure and sale of the property. Unpaid interest, being unrealized losses, is not taken into account until an actual default event occurs.
 
 | Column Name        | Data Type | Description                                                  |
@@ -309,7 +336,7 @@ Data tests:
  - `total_monthly_loss` is NOT `NULL` and NON-POSITIVE
 
 
-##### m__portfolio_risk
+#### m__portfolio_risk
 This table shows the current default rate, the actual one-year ever-bad default rate and the average one-year ever-bad default probability of the portfolio as calculated by the machine learning model. 
 
 | Column Name                              | Data Type | Description                                                     |
@@ -325,7 +352,7 @@ Data tests:
 - `ever_bad_one_year_default_rate` is a VALID PROBABILITY, in the range [0,1]
 - `predicted_ever_bad_one_year_default_rate` is a VALID PROBABILITY, in the range [0,1]
 
-### Next Steps
--Creating additional metrics and visualizations, especially by exploiting demographic data from the origination table.
--Introducing additional data quality checks and unit tests into the pipeline.
--Implementing a proper ML workflow for inference and training of machine learning models on the dataset.
+## 📈 Next Steps
+- Creating additional metrics and visualizations, especially by exploiting demographic data from the origination table.
+- Introducing additional data quality checks and unit tests into the pipeline.
+- Implementing a proper ML workflow for inference and training of machine learning models on the dataset.
