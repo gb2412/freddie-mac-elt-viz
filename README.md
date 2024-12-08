@@ -157,7 +157,7 @@ My data model is based on two **source tables**: `raw_mortgage_origination` and 
 | Table                    | Rows                     | Description                                                   |
 | ------------------------ | ------------------------ | ------------------------------------------------------------- |
 | raw_mortgage_origination | 18355264 (18 million)   | Origination information on all Freddie Mac mortgages.         |
-| raw_mortgage_Performance | 774702357 (774 million) | Monthly performance information on all Freddie Mac mortgages. |
+| raw_mortgage_performance | 774702357 (774 million) | Monthly performance information on all Freddie Mac mortgages. |
 
 ### 👉 Staging
 #### stg__raw_origination
