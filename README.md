@@ -154,10 +154,10 @@ The metrics tables are then loaded into **Snowflake** to be easily accessible fr
 ## 🏭 Data Modelling
 My data model is based on two **source tables**: `raw_mortgage_origination` and `raw_mortgage_perfromance`, which contain the origination and performance data for all loans in the portfolio. They are the output of the **WAP-EL** process and can therefore be considered the single source of truth for all downstream tables. **Staging** and **intermediate** tables are built on top of them, leading to the calculation of the **aggregated metrics** shown in the dashboard.
 
-| Table                    | Rows                     | Description                                                   |
-| ------------------------ | ------------------------ | ------------------------------------------------------------- |
-| raw_mortgage_origination | 18355264 (18 million)   | Origination information on all Freddie Mac mortgages.         |
-| raw_mortgage_performance | 774702357 (774 million) | Monthly performance information on all Freddie Mac mortgages. |
+| Table                    | Rows                     | Description                                                   | Partitioned by                |
+| ------------------------ | ------------------------ | ------------------------------------------------------------- |-------------------------------|
+| raw_mortgage_origination | 18355264 (18 million)   | Origination information on all Freddie Mac mortgages.         | `year`, `first_payment_month`  |
+| raw_mortgage_Performance | 774702357 (774 million) | Monthly performance information on all Freddie Mac mortgages. | `year`, `month_reporting`      |
 
 ### 👉 Staging
 #### stg__raw_origination
@@ -201,9 +201,6 @@ A one-to-one mapping to the `raw_mortgage_origination` table with proper encodin
 | pre_ref_loan_num           | VARCHAR   | The pre-relief refinance loan number.                       |
 | date                       | DATE      | The date the loan data was loaded.                          |
 
-Partitioned by:
-- `year`
-- `first_payment_month`
 Data tests:
 - `loan_num` is UNIQUE and NOT `NULL`
 - `int_rate` is POSITIVE
@@ -252,9 +249,6 @@ A one-to-one mapping to the `raw_mortgage_performance` table with proper encodin
 | miscellaneous_expenses             | DOUBLE    | The miscellaneous expenses associated with the sale of the property.                |
 | date                               | DATE      | The date the performance data was loaded.                                           |
 
-Partitioned by:
-- `year`
-- `month_reporting`
 Data tests:
 - `loan_num` is NOT `NULL`
 - `month_reporting` is NOT `NULL`
@@ -278,7 +272,7 @@ The `ever_bad_one_year_default` column is calculated using a 12-month window fun
 | curr_default              | INT       | The current default status of the loan.           |
 | ever_bad_one_year_default | INT       | The ever-bad one-year default status of the loan. |
 
-Data-tests:
+Data tests:
 - `loan_num` is NOT `NULL`
 - `curr_default` accepted vales: 0 or 1
 - `ever_bad_one_year_default` accepted vales: 0, 1 or `NULL`
