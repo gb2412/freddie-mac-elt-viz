@@ -119,23 +119,26 @@ When new data is released, the backfill process is invoked as described in [Chal
 
 #### Write
 `load_to_audit_tables` is the actual EL task. It downloads the data and loads it into the Iceberg tables in AWS. It is a dynamic task: a separate glue job is initiated for each year. The glue job executes the `glue_iceberg_load.py` script and is submitted using the `create_and_run_glue_job` function from `glue_job_runner.py`, which is a wrapper around the `create_glue_job` function from `glue_job_submission.py`.
+
 In each job, the corresponding year's data is processed one quarter at a time, performing the following steps:
 1. downloaded with `requests`
 2. held in memory with `io.BytesIO()`
 3. unzipped with `zipfile.ZipFile()`
-4. read in chunks of 1 million lines with `intertools.islice()`
-5. stored as a `list`
-6. converted to a PySpark dataframe
-7. appended to the respective audit Iceberg table
+4. read in chunks of 1 million lines with `itertools.islice()`
+5. chunk stored as a `list`
+6. chunk converted to a PySpark dataframe
+7. chunk appended to the respective audit Iceberg table
 
-Creating a separate glue job for each year allows the EL process to be repeated for specific years in the event of runtime errors or data quality fails. The data for each year is processed in batches of 1 million rows at a time to avoid memory overflow errors. The batch size can be tuned according to the resources available to achieve the optimum trade-off between cost and computation time.
+Creating a separate glue job for each year allows the EL process to be repeated for specific years in the event of runtime errors or data quality fails. The data for each year is processed in batches of 1 million rows at a time to avoid OOM errors. The batch size can be tuned according to the resources available to achieve the optimum trade-off between cost and computation time.
+
+The most error-prone step is downloading the data. Due to the size of the files, it is not uncommon for them to be corrupted during the download process and therefore unable to be unzipped. A retry strategy has been implemented to handle this type of error.
 
 #### Audit
 After loading the data into the audit tables, data quality checks are performed. 
 These ensure that:
 - there are NOT fewer unique loans in the audit origination table than in the production origination table.
 - for each observation date (`month_reporting`), there are NOT fewer unique loans in the audit performance table than in the production performance table.
-These tests are designed to ensure that no records are removed from the production tables when the pipeline is run. The tests are run on a per-year basis so that if they fail, only the corresponding Glue jobs can be re-run. Column-level quality tests are carried out in the transformation phase.
+These tests are designed to ensure no records are removed from the production tables when the pipeline is run. The tests are run on a per-year basis so that if they fail, only the corresponding Glue jobs can be re-run. Column-level quality tests are carried out in the transformation phase.
 
 #### Publish
 If the data quality tests are successful, the data is transferred from the audit tables to the production tables, replacing its previous version.
