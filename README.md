@@ -43,7 +43,7 @@ The project has two main components: an [ELT pipeline](#-elt-pipeline) and a [da
 ### 🔧 Tech Stack
 - [Astronomer](https://www.astronomer.io/)-[Airflow](https://airflow.apache.org/) for orchestration
 - [Starburst](https://www.starburst.io/)-[Trino](https://trino.io/) for querying
-- [AWS Glue](https://aws.amazon.com/glue/) and [S3](https://aws.amazon.com/s3/) with [Iceberg](https://iceberg.apache.org/) for storing
+- [AWS Glue](https://aws.amazon.com/glue/) and [S3](https://aws.amazon.com/s3/) with [Tabular](https://www.tabular.io/) and [Iceberg](https://iceberg.apache.org/) for storing
 - [PySpark](https://spark.apache.org/docs/latest/api/python/index.html) for loading
 - [dbt](https://www.getdbt.com/) for transformation
 - [Snowflake](https://www.snowflake.com/en/emea/) for storing metrics tables
