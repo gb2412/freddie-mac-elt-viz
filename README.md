@@ -32,7 +32,7 @@ An end-to-end ELT pipeline to download, load into a database and transform into 
 ## Overview
 
 ### 🔥 Project Motivation
-My background is in economics and finance. I'm fascinated by quantitative risk management, particularly credit risk modelling. Accurately predicting how many and which borrowers will default allows banks and lending companies to make important strategic decisions. Needless to say, machine learning is a natural fit in this space. But beyond fancy neural networks and tree-based models, analytics remains critical to risk management. In this project, which marks the end of the [Dataexpert](https://www.dataexpert.io) Analytics Engineering Bootcamp V1, I decided to focus on analytics and discover the complexity and beauty behind simple time series and percentages.
+My background is in economics and finance. I'm fascinated by quantitative risk management, particularly credit risk modelling. Accurately predicting how many and which borrowers will default allows banks and lending companies to make important strategic decisions. Needless to say, machine learning is a natural fit in this space. But beyond fancy neural networks and tree-based models, analytics remains critical to risk management. In this project, which marks the end of the [Dataexpert](https://www.dataexpert.io) **Analytics Engineering Bootcamp** V1, I decided to focus on analytics and discover the complexity and beauty behind simple time series and percentages.
 
 ### 🎯 Target Audience
 This project will benefit anyone who needs to interact with the dataset and is looking for a programmatic way to do so. The pipeline can be used by credit model developers or academic researchers, while the dashboard provides insights for mortgage industry practitioners.
@@ -41,12 +41,12 @@ This project will benefit anyone who needs to interact with the dataset and is l
 The project has two main components: an [ELT pipeline](#-elt-pipeline) and a [dashboard](#-dashboard). The ELT pipeline extracts mortgage origination and monthly performance data from Freddie Mac's website, loads it into a data lake, and transforms it into metrics tables. The dashboard displays the time series of these key metrics, providing a comprehensive, up-to-date view of the size and performance of Freddie Mac's mortgage portfolio over time.
 
 ### 🔧 Tech Stack
-- [Astronomer](https://www.astronomer.io/)-Airflow for orchestration
-- [Starburst](https://www.starburst.io/)-Trino for querying
-- [AWS Glue](https://aws.amazon.com/glue/) and [S3](https://aws.amazon.com/s3/) with Iceberg for storage
+- [Astronomer](https://www.astronomer.io/)-[Airflow](https://airflow.apache.org/) for orchestration
+- [Starburst](https://www.starburst.io/)-[Trino](https://trino.io/) for querying
+- [AWS Glue](https://aws.amazon.com/glue/) and [S3](https://aws.amazon.com/s3/) with [Iceberg](https://iceberg.apache.org/) for storing
 - [PySpark](https://spark.apache.org/docs/latest/api/python/index.html) for loading
 - [dbt](https://www.getdbt.com/) for transformation
-- [Snowflake](https://www.snowflake.com/en/emea/) for metrics tables
+- [Snowflake](https://www.snowflake.com/en/emea/) for storing metrics tables
 - [Docker](https://www.docker.com/) for containerization
 - [Grafana](https://grafana.com/grafana/dashboards/) for visualization
 
@@ -124,9 +124,9 @@ In each job, the corresponding year's data is processed one quarter at a time, p
 2. held in memory with `io.BytesIO()`
 3. unzipped with `zipfile.ZipFile()`
 4. read in chunks of 1 million lines with `intertools.islice()`
-5. into a `list`
+5. stored as a `list`
 6. converted to a PySpark dataframe
-7. appended to the respective audit iceberg table
+7. appended to the respective audit Iceberg table
 
 Creating a separate glue job for each year allows the EL process to be repeated for specific years in the event of runtime errors or data quality fails. The data for each year is processed in batches of 1 million rows at a time to avoid memory overflow errors. The batch size can be tuned according to the resources available to achieve the optimum trade-off between cost and computation time.
 
