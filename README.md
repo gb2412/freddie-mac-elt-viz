@@ -73,7 +73,7 @@ Finally, **Portfolio Default Rate** shows the one-year default rate, i.e. the av
 Although these data are an excellent resource for credit risk modelling and analytics, there are three main challenges that make them cumbersome to use:
 1.  Data are not published on a precise [calendar](https://www.freddiemac.com/fmac-resources/research/pdf/release_notes.pdf).
 2. There are no APIs or database to query, the only way to access the data is to log on to the [website](https://freddiemac.embs.com/FLoan/secure/login.php?pagename=downloadQ) and download it as zipped folders of text files. Each year quarter (e.g. 2015Q1) corresponds to a folder containing a file of origination data for the mortgages purchased in that quarter and a file of performance data for the same mortgages. The performance file is updated with each data release.
-3. With each release, FM may publish corrections and updates to the historical data in the dataset without specifying which records have been changed.
+3. With each release, FM may publish corrections and updates to the historical data in the dataset without specifying which records have been affected.
 
 In this project, I addressed each of these challenges to make the interaction with the dataset more seamless. 
 
@@ -90,6 +90,9 @@ There is no information about which records have been changed, and the data form
 
 
 ## ⛽ ELT pipeline
+
+![Screenshot 2024-12-11 131610](https://github.com/user-attachments/assets/e1cc3587-992d-4685-9ba4-c46a9221a77e)
+
 The bulk of this project is the ELT pipeline, developed as an **Airflow DAG**. The DAG can be decomposed into three main components or groups of tasks: the [pre-ELT](#-pre-elt-tasks), the [EL](#-el-tasks) and the [T](#-t-tasks) tasks.
 
 ### 👉 pre-ELT tasks
