@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: m__portfolio_risk
+    description: Table with actual and predicted default rates at the portfolio level.
+    columns:
+      - name: month_reporting
+        description: The month the performance data was reported.
+      - name: current_default_rate
+        description: Average current default rate.
+        data_tests:
+          - not_null
+          - is_valid_probability
+      - name: ever_bad_one_year_default_rate
+        description: Average next-year default rate.
+        data_tests:
+          - is_valid_probability
+      - name: predicted_ever_bad_one_year_default_rate
+        description: Average predicted probability of default from sparse GAM model.
+        data_tests:
+          - not_null
+          - is_valid_probability

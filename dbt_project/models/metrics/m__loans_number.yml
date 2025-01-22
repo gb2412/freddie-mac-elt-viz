@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: m__loans_number
+    description: monthly number of Freddie Mac mortgage loans.
+    columns:
+      - name: month_reporting
+        description: The month the performance data was reported.
+        data_tests:
+          - not_null
+      - name: total_loans
+        description: The number of loans in the portfolio.
+        data_tests:
+          - not_null
+          - is_positive

@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: m__principal
+    description: monthly aggregate upaid principal balance on Freddie Mac mortgage loans.
+    columns:
+      - name: month_reporting
+        description: The month the performance data was reported.
+        data_tests:
+          - not_null
+      - name: total_current_upb
+        description: The total upaid principal balance on all loans in the month.
+        data_tests:
+          - not_null
+          - is_positive

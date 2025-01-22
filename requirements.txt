@@ -1,0 +1,13 @@
+# Astro Runtime includes the following pre-installed providers packages: https://docs.astronomer.io/astro/runtime-image-architecture#provider-packages
+apache-airflow-providers-trino==5.7.0
+apache-airflow-providers-snowflake
+boto3
+python-dotenv
+requests
+dbt-core==1.9.0b3
+dbt-trino==1.8.3
+sqlfluff==3.0.6
+astronomer-cosmos
+pyspark==3.5.3
+boto3
+dotenv

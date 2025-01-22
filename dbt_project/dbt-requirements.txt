@@ -1,0 +1,4 @@
+dbt-core==1.9.0b3
+dbt-snowflake==1.8.4
+sqlfluff==3.0.6
+dbt-trino==1.8.3

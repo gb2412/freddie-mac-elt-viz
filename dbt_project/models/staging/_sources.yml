@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: capstone_sources
+    database: academy
+    schema: "{{ env_var('DBT_SCHEMA')}}"
+    tables:
+      - name: raw_mortgage_origination
+      - name: raw_mortgage_performance

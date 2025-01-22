@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: int__ml_model_predictions
+    description: Table with predicted probabilities of default from sparse GAM machine learning model.
+    columns:
+      - name: loan_num
+        description: Unique identifier for each loan.
+        data_tests:
+          - not_null
+      - name: month_reporting
+        description: The month the performance data was reported.
+      - name: prediction
+        description: Probability of default from sparse GAM model.
+        data_tests:
+          - not_null
+          - is_valid_probability

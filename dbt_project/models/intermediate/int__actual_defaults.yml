@@ -1,0 +1,112 @@
+version: 2
+
+models:
+  - name: int__actual_defaults
+    description: table with current default and ever-bad one-year default flags for each loan.
+    columns:
+      - name: loan_num
+        description: Unique identifier for each loan.
+        data_tests:
+          - not_null
+      - name: month_reporting
+        description: The month the performance data was reported.
+      - name: curr_default
+        description: The current default status of the loan.
+        data_tests:
+          - accepted_values: 
+              values: [0, 1]
+              quote: false
+      - name: ever_bad_one_year_default
+        description: The ever-bad one-year default status of the loan.
+        data_tests:
+          - accepted_values_with_null:
+              values: [0, 1]
+
+unit_tests:
+  - name: test__default_flags
+    model: int__actual_defaults
+    given:
+      - input: ref('stg__raw_performance')
+        format: csv
+        rows: |
+          loan_num,month_reporting,current_delinquency_status,zero_balance_code
+          1,2023-01-31,0,Null
+          1,2023-02-28,0,Null
+          1,2023-03-31,0,Null
+          1,2023-04-30,0,Null
+          1,2023-05-31,0,Null
+          1,2023-06-30,0,Null
+          1,2023-07-31,0,Null
+          1,2023-08-31,1,Null
+          1,2023-09-30,2,Null
+          1,2023-10-31,3,Null
+          1,2023-11-30,4,Null
+          1,2023-12-31,5,Null
+          1,2024-01-31,6,Null
+          1,2024-02-28,7,Null
+          1,2024-03-31,8,Null
+          1,2024-04-30,9,Null
+          1,2024-05-31,10,Null
+          1,2024-06-30,RA,09
+          2,2023-01-31,0,Null
+          2,2023-02-28,0,Null
+          2,2023-03-31,0,Null
+          2,2023-04-30,0,Null
+          2,2023-05-31,0,Null
+          2,2023-06-30,0,Null
+          2,2023-07-31,0,Null
+          2,2023-08-31,0,Null
+          2,2023-09-30,0,Null
+          2,2023-10-31,0,Null
+          2,2023-11-30,0,Null
+          2,2023-12-31,0,Null
+          2,2024-01-31,1,Null
+          2,2024-02-28,2,Null
+          3,2023-01-31,0,Null
+          3,2023-02-28,0,Null
+          3,2023-03-31,1,Null
+          3,2023-04-30,2,Null
+          3,2023-05-31,3,Null
+          3,2023-06-30,4,02
+    expect:
+      format: csv
+      rows: |
+        loan_num,month_reporting,curr_default,ever_bad_one_year_default
+        1,2023-01-31,0,1
+        1,2023-02-28,0,1
+        1,2023-03-31,0,1
+        1,2023-04-30,0,1
+        1,2023-05-31,0,1
+        1,2023-06-30,0,1
+        1,2023-07-31,0,Null
+        1,2023-08-31,0,Null
+        1,2023-09-30,0,Null
+        1,2023-10-31,1,Null
+        1,2023-11-30,1,Null
+        1,2023-12-31,1,Null
+        1,2024-01-31,1,Null
+        1,2024-02-28,1,Null
+        1,2024-03-31,1,Null
+        1,2024-04-30,1,Null
+        1,2024-05-31,1,Null
+        1,2024-06-30,1,Null
+        2,2023-01-31,0,0
+        2,2023-02-28,0,0
+        2,2023-03-31,0,0
+        2,2023-04-30,0,0
+        2,2023-05-31,0,0
+        2,2023-06-30,0,0
+        2,2023-07-31,0,Null
+        2,2023-08-31,0,Null
+        2,2023-09-30,0,Null
+        2,2023-10-31,0,Null
+        2,2023-11-30,0,Null
+        2,2023-12-31,0,Null
+        2,2024-01-31,0,Null
+        2,2024-02-28,0,Null
+        3,2023-01-31,0,1
+        3,2023-02-28,0,1
+        3,2023-03-31,0,1
+        3,2023-04-30,0,1
+        3,2023-05-31,1,1
+        3,2023-06-30,1,Null

@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: stg__raw_performance
+    description: staging table for Freddie Mac mortgage raw performance data.
+    columns:
+      - name: loan_num
+        description: Unique identifier for each loan.
+        data_tests:
+          - not_null
+      - name: month_reporting
+        description: The month the performance data was reported.
+        data_tests:
+          - not_null
+      - name: year
+        description: The year the loan was originated.
+      - name: quarter
+        description: The year the loan was originated.
+      - name: remaining_months_to_legal_maturity
+        description: The number of months remaining until the loan matures.
+      - name: loan_age
+        description: The age of the loan in months.
+      - name: current_actual_upb
+        description: The current unpaid principal balance of the loan.
+      - name: current_delinquency_status
+        description: The current delinquency status of the loan.
+      - name: ddlpi
+        description: Due date of last paid installment.
+      - name: current_int_rate
+        description: The current interest rate of the loan.
+      - name: eltv
+        description: The estimated current loan-to-value ratio of the loan.
+      - name: curr_int_upb
+        description: The current interest bearing unpaid principal balance.
+      - name: current_non_int_upb
+        description: The current non-interest bearing unpaid principal balance.
+      - name: modification_flag
+        description: Indicates if the loan has been modified in current or prior period.
+      - name: step_modification_flag
+        description: Indicates if the loan has a step modification.
+      - name: curr_month_modification_cost
+        description: The modification cost for the current month.
+      - name: cum_modification_cost
+        description: The cumulative modification cost.
+      - name: borrower_assistance_status_code
+        description: The assitance plan the borrower is enrolled in.
+      - name: payment_deferral
+        description: Indicates if the payment has been deferred.
+      - name: disaster_delinq_flag
+        description: Indicates if the loan is delinquent due to a disaster.
+      - name: zero_balance_code
+        description: The code indicating the reason for a zero balance.
+      - name: zero_balance_effective_date
+        description: The effective date of the zero balance.
+      - name: defect_settlement_date
+        description: The date of the defect settlement.
+      - name: zero_bal_removal_upb
+        description: The unpaid principal balance at the time of zero balance removal.
+      - name: delinquent_accrued_int
+        description: The delinquent accrued interest owned at default.
+      - name: actual_loss
+        description: The actual loss on the loan.
+      - name: mi_recoveries
+        description: The mortgage insurance recoveries.
+      - name: non_mi_recoveries
+        description: The non-mortgage insurance recoveries.
+      - name: net_sale_proceeds
+        description: The net proceeds from the sale of the property.
+      - name: total_expenses
+        description: The total expenses related to acquiring, maintaining and/or disposing the property.
+      - name: legal_costs
+        description: The legal costs asssociated with the sale of the property.
+      - name: maintenance_and_preservation_costs
+        description: The maintenance and preservation costs asssociated with the sale of the property.
+      - name: taxes_and_insurance
+        description: The taxes and insurance asssociated with the sale of the property.
+      - name: miscellaneous_expenses
+        description: The miscellaneous expenses asssociated with the sale of the property.
+      - name: date
+        description: The date the performance data was loaded.

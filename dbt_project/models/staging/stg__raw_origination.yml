@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: stg__raw_origination
+    description: staging table for Freddie Mac mortgage raw origination data.
+    columns:
+      - name: loan_num
+        description: Unique identifier for each loan.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_payment_month
+        description: The month of the first payment for the loan.
+      - name: year
+        description: The year the loan was originated.
+      - name: quarter
+        description: The quarter the loan was originated.
+      - name: loan_term
+        description: The term of the loan in months.
+      - name: maturity_date
+        description: The date when the loan matures.
+      - name: amortization_type
+        description: The type of amortization for the loan.
+      - name: int_rate
+        description: The interest rate of the loan.
+        data_tests:
+          - is_not_negative
+      - name: loan_purpose
+        description: The purpose of the loan (e.g., purchase, refinance).
+      - name: credit_score
+        description: The credit score of the borrower (300-850).
+        data_tests:
+          - is_positive
+      - name: upb
+        description: The unpaid principal balance of the loan.
+        data_tests:
+          - is_positive
+      - name: ltv
+        description: The loan-to-value ratio of the loan.
+      - name: cltv
+        description: The combined loan-to-value ratio of the loan.
+      - name: dti
+        description: The debt-to-income ratio of the borrower.
+      - name: first_time_home_buyer_flag
+        description: Indicates if the borrower is a first-time home buyer.
+      - name: zip_code
+        description: The three-digit ZIP code of the property securing the loan.
+      - name: metropolitan_area
+        description: The metropolitan area of the property securing the loan.
+      - name: property_state
+        description: The state where the property securing the loan is located.
+      - name: property_type
+        description: The type of property securing the loan.
+      - name: occupancy_status
+        description: The occupancy status of the property securing the loan.
+      - name: num_units
+        description: The number of units in the property securing the loan.
+      - name: prop_val_method
+        description: The method used to value the property securing the loan.
+      - name: num_borrowers
+        description: The number of borrowers on the loan.
+      - name: channel
+        description: The origination channel of the loan.
+      - name: seller_name
+        description: The name of the seller of the loan.
+      - name: servicer_name
+        description: The name of the servicer of the loan.
+      - name: mi_percentage
+        description: The mortgage insurance percentage of the loan.
+      - name: mi_canc_indicator
+        description: Indicates if the mortgage insurance was canceled.
+      - name: prepay_penalty
+        description: Indicates if there is a prepayment penalty on the loan.
+      - name: int_only_indicator
+        description: Indicates if the loan is interest-only.
+      - name: sup_conf_flag
+        description: Indicates if the loan is a super conforming loan.
+      - name: program_indicator
+        description: The program indicator for the loan.
+      - name: ref_indicator
+        description: The relief refinance indicator for the loan.
+      - name: pre_ref_loan_num
+        description: The pre-relief refinance loan number.
+      - name: date
+        description: The date the loan data was loaded.

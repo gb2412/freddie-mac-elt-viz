@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: m__loss
+    description: monthly aggregate loss on defaulted Freddie Mac mortgage loans.
+    columns:
+      - name: month_reporting
+        description: The month the performance data was reported.
+        data_tests:
+          - not_null
+      - name: total_monthly_loss
+        description: The total loss incurred on all defualted loans in the month.
+        data_tests:
+          - not_null
+          - is_negative_or_zero

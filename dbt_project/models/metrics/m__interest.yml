@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: m__interest
+    description: monthly aggregate interest paid on Freddie Mac mortgage loans.
+    columns:
+      - name: month_reporting
+        description: The month the performance data was reported.
+        data_tests:
+          - not_null
+      - name: total_monthly_interest
+        description: The total interest paid on all loans in the month.
+        data_tests:
+          - not_null
+          - is_not_negative
