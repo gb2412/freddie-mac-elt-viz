@@ -1,0 +1,70 @@
+[sqlfluff]
+dialect = databricks
+templater = dbt
+exclude_rules = L016,L036
+max_line_length = 120
+
+[sqlfluff:indentation]
+tab_space_size = 4
+indent_unit = space
+indented_joins = true
+indented_ctes = true
+indented_on = false
+indented_case = true
+indented_from = true
+indented_using = true
+indented_group_by = true
+indented_order_by = true
+indented_having = true
+indented_where = true
+indented_qualify = true
+indented_over = true
+
+[sqlfluff:rules:L010] # Keywords
+capitalisation_policy = upper
+
+[sqlfluff:rules:L014] # Unquoted identifiers
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:L030] # Function names
+capitalisation_policy = upper
+
+[sqlfluff:rules:L038] # Trailing commas
+require_trailing_comma = false
+
+[sqlfluff:rules:L042] # No Subqueries in JOIN/BY
+forbid_subquery_in = both
+
+[sqlfluff:rules:L057] # Special characters in identifiers
+allow_space_in_identifier = false
+
+[sqlfluff:rules:L029] # Keyword identifiers
+force_enable = true
+unquoted_identifiers_policy = all
+
+[sqlfluff:rules:L031] # Aliases
+force_enable = true
+require_explicit_alias = false
+allow_implicit_alias = true
+require_as_keyword = true
+
+[sqlfluff:rules:L052] # Semi-colon formatting
+multiline_newline = false
+require_final_semicolon = false
+
+[sqlfluff:layout:type:conditional]
+spacing_before = 1
+spacing_after = 1
+
+[sqlfluff:layout:type:comma]
+line_position = trailing
+spacing_before = 0
+spacing_after = 1
+
+[sqlfluff:layout:type:binary_operator]
+spacing_before = 1
+spacing_after = 1
+
+[sqlfluff:templater:dbt]
+apply_dbt_builtins = true
+project_dir = ./

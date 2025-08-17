@@ -11,3 +11,4 @@ astronomer-cosmos
 pyspark==3.5.3
 boto3
 dotenv
+pre-commit==4.2.0
